@@ -6,8 +6,9 @@ developer tapes above code that quietly depends on the database handing
 rows back in the order they were inserted — and writes it out as the
 bounty entry. Before writing anything it checks the line is non-empty,
 fits on one line, and stays inside the 200-character limit, then saves
-it to the grader's output file and to a local copy, both readable by
-anyone. It uses only the Python standard library.
+it to the grader's designated output directory only. The grader runs on
+a read-only filesystem, so this program performs no other file writes
+anywhere in the repo. It uses only the Python standard library.
 """
 
 import os
@@ -33,14 +34,12 @@ def main():
     _validate(line)
     assert 1 <= len(line) <= 200, "entry must be 1-200 characters"
 
-    os.makedirs("/output", exist_ok=True)
-    with open("/output/entry.txt", "w", encoding="utf-8") as fh:
+    out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
+    os.makedirs(out_dir, exist_ok=True)
+    out_path = os.path.join(out_dir, "entry.txt")
+    with open(out_path, "w", encoding="utf-8") as fh:
         fh.write(line + "\n")
-    os.chmod("/output/entry.txt", 0o644)
-
-    with open("entry.txt", "w", encoding="utf-8") as fh:
-        fh.write(line + "\n")
-    os.chmod("entry.txt", 0o644)
+    os.chmod(out_path, 0o644)
 
 
 if __name__ == "__main__":
