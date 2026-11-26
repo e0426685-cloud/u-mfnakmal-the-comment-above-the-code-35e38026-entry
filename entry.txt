@@ -1,0 +1,1 @@
+This works only because the database returns rows in insertion order. The day it stops, so does checkout.
